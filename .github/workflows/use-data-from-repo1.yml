@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   call_repo1:
-    # ここで "再利用可能なワークフロー" を呼び出す
     uses: tech-organization-mame/githubtest/.github/workflows/export-file.yml@main
 
   create_pr:
@@ -19,12 +18,12 @@ jobs:
       - name: Check out Repo2
         uses: actions/checkout@v3
 
-      - name: Add file from Repo1 data
+      - name: Update file
         run: |
+          # ここでは単にファイル更新だけ行う
           echo "Data from Repo1: ${{ needs.call_repo1.outputs.data_content }}" > new_data.txt
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b update-data
           git add new_data.txt
           git commit -m "Add data from Repo1"
 
@@ -32,7 +31,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: update-data
+          branch: update-data   # ここでブランチ作成・Pushを自動処理
           base: main
           title: "Update data from Repo1"
           body: "This PR adds the data from Repo1 to new_data.txt."
