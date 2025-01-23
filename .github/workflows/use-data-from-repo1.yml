@@ -1,22 +1,38 @@
-name: Call Reusable Workflow and Use Output
+name: Use Repo1 Data
 
 on:
   workflow_dispatch:
 
-jobs:
-  # (A) 再利用可能ワークフローを呼び出すジョブ
-  call-workflow:
-    uses: tech-organization-mame/githubtest/.github/workflows/export-file.yml@main
-    # ★ ここでは steps / outputs は一切定義しない
+permissions:
+  contents: write
+  pull-requests: write
 
-  # (B) 取得した出力を使うジョブ
-  use-output:
-    needs: call-workflow
+jobs:
+  call_repo1:
+    # ここで "再利用可能なワークフロー" を呼び出す
+    uses: tech-organization-mame/githubtest/.github/workflows/export-file.yml@main
+
+  create_pr:
+    needs: call_repo1
     runs-on: ubuntu-latest
     steps:
-      - name: Check out
+      - name: Check out Repo2
         uses: actions/checkout@v3
 
-      - name: Show output
+      - name: Add file from Repo1 data
         run: |
-          echo "Data is: ${{ needs.call-workflow.outputs.data_content }}"
+          echo "Data from Repo1: ${{ needs.call_repo1.outputs.data_content }}" > new_data.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b update-data
+          git add new_data.txt
+          git commit -m "Add data from Repo1"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update-data
+          base: main
+          title: "Update data from Repo1"
+          body: "This PR adds the data from Repo1 to new_data.txt."
