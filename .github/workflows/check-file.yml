@@ -1,0 +1,30 @@
+# .github/workflows/check-file.yml
+name: Check File Content
+
+on:
+  workflow_call:
+    inputs:
+      file_content_repo1:
+        description: "Content of the file from Repository 1"
+        required: true
+        type: string
+
+jobs:
+  check_file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Compare file contents
+        run: |
+          if [ -f "data.txt" ]; then
+            local_content=$(cat data.txt)
+          else
+            local_content="File not found"
+          fi
+
+          if [ "$local_content" = "${{ inputs.file_content_repo1 }}" ]; then
+            echo "Files are identical."
+          else
+            echo
