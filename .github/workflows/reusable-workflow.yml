@@ -17,4 +17,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Greet
-        run: echo "Hello ${{ inputs.name }}"
+        run: echo "Hello ${{ inputs.name }}" |
+             echo $(cat data.txt)"
