@@ -18,4 +18,4 @@ jobs:
     steps:
       - name: Greet
         run: echo "Hello ${{ inputs.name }}" |
-             echo $(cat data.txt)"
+             echo "$(cat data.txt)"
